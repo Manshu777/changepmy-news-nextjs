@@ -17,7 +17,7 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
     value,
     onChange,
     className,
-    placeholder = "Search news, topics, authors...",
+        placeholder = "Search for topics, locations & sources",
   },
   ref
 ) {
@@ -30,7 +30,7 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-2xl border border-slate-200/80 bg-white/80 py-2.5 pl-11 pr-10 text-sm text-slate-800 placeholder:text-slate-400 shadow-sm backdrop-blur-sm transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+        className="w-full rounded-full border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-10 text-sm text-slate-800 placeholder:text-slate-400 transition-all focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
         aria-label="Search news"
       />
       {value ? (

@@ -1,96 +1,85 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { NewsArticle, NewsTab } from "@/types/news";
+import type { NewsArticle } from "@/types/news";
 import {
-  filterByCategory,
   filterBySearch,
-  getBreakingNews,
   getEditorPicks,
-  getFeaturedArticle,
-  getPopularArticles,
   getTopStories,
-  getTrendingArticles,
-  getTrendingTags,
 } from "@/lib/filters";
 import { useDebounce } from "@/hooks/useDebounce";
 import Header from "./Header";
-import CategoryTabs from "./CategoryTabs";
-import BreakingNews from "./BreakingNews";
-import HeroSection from "./HeroSection";
-import TrendingSection from "./TrendingSection";
-import NewsGrid from "./NewsGrid";
+import BriefingHeader from "./BriefingHeader";
+import TopStoriesSection from "./TopStoriesSection";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 import ScrollProgress from "./ScrollProgress";
 import BackToTop from "./BackToTop";
-import MobileBottomNav from "./MobileBottomNav";
 
 interface HomePageProps {
   articles: NewsArticle[];
 }
 
 export default function HomePage({ articles }: HomePageProps) {
-  const [activeCategory, setActiveCategory] = useState<NewsTab>("Latest");
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearch = useDebounce(searchQuery, 300);
 
-  const filteredArticles = useMemo(() => {
-    let result = filterByCategory(articles, activeCategory);
-    result = filterBySearch(result, debouncedSearch);
-    return result.filter((a) => !a.featured);
-  }, [articles, activeCategory, debouncedSearch]);
+  const filteredArticles = useMemo(
+    () => filterBySearch(articles, debouncedSearch),
+    [articles, debouncedSearch]
+  );
 
-  const featured = useMemo(() => getFeaturedArticle(articles), [articles]);
-  const breaking = useMemo(() => getBreakingNews(articles), [articles]);
-  const trending = useMemo(() => getTrendingArticles(articles), [articles]);
-  const topStories = useMemo(() => getTopStories(articles), [articles]);
-  const popular = useMemo(() => getPopularArticles(articles), [articles]);
-  const editorPicks = useMemo(() => getEditorPicks(articles), [articles]);
-  const trendingTags = useMemo(() => getTrendingTags(articles), [articles]);
+  const topStories = useMemo(
+    () => getTopStories(filteredArticles),
+    [filteredArticles]
+  );
+
+  const localNews = useMemo(
+    () => filteredArticles.filter((a) => a.category === "India").slice(0, 3),
+    [filteredArticles]
+  );
+
+  const picksForYou = useMemo(
+    () => getEditorPicks(filteredArticles),
+    [filteredArticles]
+  );
 
   return (
     <>
       <ScrollProgress />
       <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
-      <BreakingNews articles={breaking} />
-      <CategoryTabs
-        activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
-      />
 
-      <main className="mx-auto max-w-7xl px-4 pb-24 pt-6 lg:px-6 lg:pb-12">
-        {featured && !debouncedSearch && activeCategory === "Latest" && (
-          <div className="mb-10">
-            <HeroSection article={featured} />
+      <main className="mx-auto max-w-6xl px-4 py-6 lg:px-6">
+        {!debouncedSearch && <BriefingHeader />}
+
+        {debouncedSearch && (
+          <div className="mb-6">
+            <h1 className="text-xl font-medium text-slate-900">
+              Results for &ldquo;{debouncedSearch}&rdquo;
+            </h1>
+            <p className="mt-1 text-sm text-slate-500">
+              {filteredArticles.length} articles found
+            </p>
           </div>
         )}
 
-        {!debouncedSearch && activeCategory === "Latest" && (
-          <TrendingSection articles={trending} />
-        )}
-
-        <div className="flex flex-col gap-8 lg:flex-row">
-          <div className="min-w-0 flex-1">
-            <NewsGrid articles={filteredArticles} />
+        {filteredArticles.length === 0 ? (
+          <div className="rounded-2xl border border-slate-200 bg-white py-16 text-center">
+            <p className="text-lg font-medium text-slate-600">No articles found</p>
+            <p className="mt-1 text-sm text-slate-400">Try a different search term</p>
           </div>
-
-          <div className="hidden w-80 shrink-0 lg:block">
-            <div className="sticky top-36">
-              <Sidebar
-                topStories={topStories}
-                popular={popular}
-                editorPicks={editorPicks}
-                trendingTags={trendingTags}
-              />
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+            <TopStoriesSection articles={topStories} />
+            <div className="lg:sticky lg:top-20 lg:self-start">
+              <Sidebar localNews={localNews} picksForYou={picksForYou} />
             </div>
           </div>
-        </div>
+        )}
       </main>
 
       <Footer />
       <BackToTop />
-      <MobileBottomNav />
     </>
   );
 }

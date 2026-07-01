@@ -23,3 +23,11 @@ export function formatRelativeDate(dateString: string): string {
   if (diffDays < 7) return `${diffDays}d ago`;
   return formatDate(dateString);
 }
+
+export function formatBriefingDate(date: Date = new Date()): string {
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+}
