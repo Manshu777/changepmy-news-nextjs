@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Image from "next/image";
 import type { NewsArticle } from "@/types/news";
 import { formatRelativeDate } from "@/lib/utils";
@@ -14,7 +15,7 @@ export default function StoryListItem({
   size = "md",
 }: StoryListItemProps) {
   return (
-    <a href="#" className="group flex gap-3 py-3">
+    <Link href={`/article/${article.id}`} className="group flex gap-3 py-3">
       <div className="min-w-0 flex-1">
         <p
           className={`font-medium leading-snug text-slate-900 transition-colors group-hover:text-primary ${
@@ -42,6 +43,6 @@ export default function StoryListItem({
           />
         </div>
       )}
-    </a>
+    </Link>
   );
 }

@@ -1,16 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { NewsArticle } from "@/types/news";
+import type { NewsArticle, NewsCategory } from "@/types/news";
 import {
   filterBySearch,
+  getArticlesByCategoryFromList,
   getEditorPicks,
+  getPopularArticles,
   getTopStories,
 } from "@/lib/filters";
+import { CATEGORIES } from "@/lib/news";
 import { useDebounce } from "@/hooks/useDebounce";
 import Header from "./Header";
 import BriefingHeader from "./BriefingHeader";
 import TopStoriesSection from "./TopStoriesSection";
+import CategoryBlock from "./CategoryBlock";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 import ScrollProgress from "./ScrollProgress";
@@ -35,7 +39,7 @@ export default function HomePage({ articles }: HomePageProps) {
   );
 
   const localNews = useMemo(
-    () => filteredArticles.filter((a) => a.category === "India").slice(0, 3),
+    () => filteredArticles.filter((a) => a.category === "India"),
     [filteredArticles]
   );
 
@@ -43,6 +47,18 @@ export default function HomePage({ articles }: HomePageProps) {
     () => getEditorPicks(filteredArticles),
     [filteredArticles]
   );
+
+  const popular = useMemo(
+    () => getPopularArticles(filteredArticles),
+    [filteredArticles]
+  );
+
+  const categorySections = useMemo(() => {
+    return CATEGORIES.map((category) => ({
+      category,
+      articles: getArticlesByCategoryFromList(filteredArticles, category),
+    })).filter((s) => s.articles.length > 0);
+  }, [filteredArticles]);
 
   return (
     <>
@@ -69,12 +85,30 @@ export default function HomePage({ articles }: HomePageProps) {
             <p className="mt-1 text-sm text-slate-400">Try a different search term</p>
           </div>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
-            <TopStoriesSection articles={topStories} />
-            <div className="lg:sticky lg:top-20 lg:self-start">
-              <Sidebar localNews={localNews} picksForYou={picksForYou} />
+          <>
+            <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+              <TopStoriesSection articles={topStories} />
+              <div className="lg:sticky lg:top-28 lg:self-start">
+                <Sidebar
+                  localNews={localNews}
+                  picksForYou={picksForYou}
+                  popular={popular}
+                />
+              </div>
             </div>
-          </div>
+
+            {!debouncedSearch && (
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                {categorySections.map(({ category, articles: catArticles }) => (
+                  <CategoryBlock
+                    key={category}
+                    category={category as NewsCategory}
+                    articles={catArticles}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </main>
 

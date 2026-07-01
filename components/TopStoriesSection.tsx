@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import type { NewsArticle } from "@/types/news";
 import { formatRelativeDate } from "@/lib/utils";
@@ -17,15 +18,18 @@ export default function TopStoriesSection({ articles }: TopStoriesSectionProps) 
 
   const featured = articles[0];
   const sideStories = articles.slice(1, 4);
-  const gridStories = articles.slice(4, expanded ? articles.length : 10);
-  const hasMore = articles.length > 10;
+  const gridStories = articles.slice(4, expanded ? articles.length : 16);
+  const hasMore = articles.length > 16;
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <h2 className="mb-4 text-sm font-medium text-slate-500">Top stories</h2>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-        <a href="#" className="group flex flex-col gap-4 sm:flex-row">
+        <Link
+          href={`/article/${featured.id}`}
+          className="group flex flex-col gap-4 sm:flex-row"
+        >
           <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-slate-100 sm:aspect-auto sm:h-44 sm:w-56 sm:shrink-0">
             <Image
               src={featured.image}
@@ -44,7 +48,7 @@ export default function TopStoriesSection({ articles }: TopStoriesSectionProps) 
               {featured.author} · {formatRelativeDate(featured.publishedAt)}
             </p>
           </div>
-        </a>
+        </Link>
 
         <div className="divide-y divide-slate-100">
           {sideStories.map((article) => (
@@ -59,11 +63,11 @@ export default function TopStoriesSection({ articles }: TopStoriesSectionProps) 
       </div>
 
       {gridStories.length > 0 && (
-        <div className="mt-4 grid gap-x-6 divide-y divide-slate-100 sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-3">
+        <div className="mt-4 grid gap-x-6 sm:grid-cols-2 lg:grid-cols-3">
           {gridStories.map((article, index) => (
             <div
               key={article.id}
-              className={index >= 3 ? "sm:col-span-1 border-t border-slate-100 sm:border-t-0" : ""}
+              className={index >= 3 ? "border-t border-slate-100 sm:border-t-0" : ""}
             >
               <StoryListItem
                 article={article}
@@ -75,7 +79,7 @@ export default function TopStoriesSection({ articles }: TopStoriesSectionProps) 
         </div>
       )}
 
-      {(hasMore || !expanded) && articles.length > 10 && (
+      {hasMore && (
         <button
           onClick={() => setExpanded(!expanded)}
           className="mt-5 w-full rounded-full border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"

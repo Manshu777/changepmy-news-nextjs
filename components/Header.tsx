@@ -1,17 +1,23 @@
 "use client";
 
+import Link from "next/link";
 import { useRef } from "react";
 import { Bell, Bookmark } from "lucide-react";
 import SearchBar from "./SearchBar";
+import MainNav from "./MainNav";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 
 interface HeaderProps {
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
 }
 
-export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
+export default function Header({
+  searchQuery = "",
+  onSearchChange,
+}: HeaderProps) {
   const searchRef = useRef<HTMLInputElement>(null);
+  const showSearch = onSearchChange !== undefined;
 
   useKeyboardShortcut("/", () => {
     searchRef.current?.focus();
@@ -20,21 +26,23 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 lg:px-6">
-        <a href="/" className="flex shrink-0 items-center gap-2">
+        <Link href="/" className="flex shrink-0 items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-white">
             N
           </div>
           <span className="text-lg font-medium text-slate-700">NEWSLY</span>
-        </a>
+        </Link>
 
-        <div className="mx-auto hidden max-w-xl flex-1 md:block">
-          <SearchBar
-            ref={searchRef}
-            value={searchQuery}
-            onChange={onSearchChange}
-            placeholder="Search for topics, locations & sources"
-          />
-        </div>
+        {showSearch && (
+          <div className="mx-auto hidden max-w-xl flex-1 md:block">
+            <SearchBar
+              ref={searchRef}
+              value={searchQuery}
+              onChange={onSearchChange}
+              placeholder="Search for topics, locations & sources"
+            />
+          </div>
+        )}
 
         <div className="ml-auto flex items-center gap-1">
           <button
@@ -55,14 +63,18 @@ export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
         </div>
       </div>
 
-      <div className="border-t border-slate-100 px-4 py-2 md:hidden">
-        <SearchBar
-          ref={searchRef}
-          value={searchQuery}
-          onChange={onSearchChange}
-          placeholder="Search for topics, locations & sources"
-        />
-      </div>
+      {showSearch && (
+        <div className="border-t border-slate-100 px-4 py-2 md:hidden">
+          <SearchBar
+            ref={searchRef}
+            value={searchQuery}
+            onChange={onSearchChange}
+            placeholder="Search for topics, locations & sources"
+          />
+        </div>
+      )}
+
+      <MainNav />
     </header>
   );
 }

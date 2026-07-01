@@ -1,4 +1,4 @@
-import type { NewsArticle, NewsTab } from "@/types/news";
+import type { NewsArticle, NewsCategory, NewsTab } from "@/types/news";
 
 export function filterByCategory(
   articles: NewsArticle[],
@@ -47,12 +47,22 @@ export function getEditorPicks(articles: NewsArticle[]): NewsArticle[] {
 }
 
 export function getTopStories(articles: NewsArticle[]): NewsArticle[] {
-  return [...articles]
+  return [...articles].sort(
+    (a, b) =>
+      new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  );
+}
+
+export function getArticlesByCategoryFromList(
+  articles: NewsArticle[],
+  category: NewsCategory
+): NewsArticle[] {
+  return articles
+    .filter((article) => article.category === category)
     .sort(
       (a, b) =>
         new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-    )
-    .slice(0, 5);
+    );
 }
 
 export function getTrendingTags(articles: NewsArticle[]): string[] {
